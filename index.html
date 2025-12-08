@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Site Under Development</title>
+  <meta name="description" content="We're sorry — this website is currently under development. Come back soon." />
+  <style>
+    :root{
+      --deep-indigo: #3A3D5B;
+      --soft-gold: #FFD460;
+      --soft-red: #FF6B6B;
+      --off-white: #F7FFF7;
+      --light-aqua: #A8DADC;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, var(--off-white), #eef8f7 60%);
+      color: var(--deep-indigo);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .card{
+      width:100%;
+      max-width:900px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+      border-radius:16px;
+      box-shadow:0 20px 50px rgba(58,61,91,0.12);
+      padding:36px;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:28px;
+      align-items:center;
+      overflow:hidden;
+      border:1px solid rgba(58,61,91,0.06);
+    }
+
+    @media (max-width:880px){
+      .card{grid-template-columns:1fr; padding:28px}
+    }
+
+    h1{
+      font-size:28px;
+      margin-bottom:10px;
+      color:var(--deep-indigo);
+    }
+
+    p.lead{
+      margin-bottom:18px;
+      color: rgba(58,61,91,0.85);
+      line-height:1.5;
+      font-size:16px;
+    }
+
+    .pill{
+      background: linear-gradient(90deg, rgba(168,218,220,0.14), rgba(255,212,96,0.08));
+      border:1px solid rgba(58,61,91,0.04);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      color:var(--deep-indigo);
+      margin-right:10px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:10px;
+      background:linear-gradient(180deg,var(--soft-gold), #ffd07a);
+      color:var(--deep-indigo);
+      text-decoration:none;
+      font-weight:600;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(58,61,91,0.08);
+    }
+
+    .secondary{
+      background:transparent;
+      border:1px dashed rgba(58,61,91,0.08);
+      color:var(--deep-indigo);
+      padding:9px 12px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:600;
+    }
+
+    .visual{
+      background:linear-gradient(135deg, rgba(58,61,91,0.03), rgba(255,107,107,0.03));
+      border-radius:12px;
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+    }
+
+    .icon{
+      width:84px;height:84px;border-radius:18px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--soft-red),#ff9a9a);
+      color:white;font-weight:700;font-size:26px;
+      box-shadow:0 8px 20px rgba(255,107,107,0.14);
+    }
+
+    .countdown{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      font-weight:700;
+      color:var(--deep-indigo);
+    }
+
+    .countdown span{
+      background:var(--off-white);
+      padding:10px 12px;
+      border-radius:8px;
+      box-shadow:0 6px 14px rgba(58,61,91,0.06);
+      min-width:56px;
+      text-align:center;
+      font-feature-settings: "tnum";
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="heading">
+    <section>
+      <h1 id="heading">We’re sorry — our website is under development</h1>
+      <p class="lead">We are improving the site to serve you better. Please check back soon.</p>
+
+      <div style="margin:12px 0;">
+        <span class="pill">Faster Performance</span>
+        <span class="pill">New UI</span>
+        <span class="pill">Better Security</span>
+      </div>
+
+      <footer style="margin-top:15px;">
+        <small>Target time: <strong id="launch-date">—</strong></small>
+      </footer>
+    </section>
+
+    <aside class="visual" aria-live="polite" aria-atomic="true">
+      <div class="icon" aria-hidden="true">⚙️</div>
+
+      <div class="countdown" role="timer" aria-live="polite" aria-atomic="true">
+        <span id="days">--</span>
+        <span id="hours">--</span>
+        <span id="minutes">--</span>
+        <span id="seconds">--</span>
+      </div>
+      <small style="color:rgba(58,61,91,0.6)">days &nbsp; hours &nbsp; minutes &nbsp; seconds</small>
+    </aside>
+  </main>
+
+  <script>
+    // Helper — zero-pad numbers
+    function pad(n){ return String(n).padStart(2, '0'); }
+
+    // Return a Date at 18:00 local for the given date (year,month,day)
+    function dateAt6(year, month, day) {
+      return new Date(year, month, day, 0, 0, 0, 0);
+    }
+
+    // Compute initial launch (today at 6pm). If now >= today 6pm, advance to next day at 6pm.
+    const now = new Date();
+    let launch = dateAt6(now.getFullYear(), now.getMonth(), now.getDate());
+    let labelSuffix = 'today at 6:00 AM';
+
+    if (now >= launch) {
+      // If it's already past 6pm local time, count to tomorrow at 6pm
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      launch = dateAt6(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
+      labelSuffix = 'today at 6:00 AM';
+    }
+
+    // Elements
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    const launchDateEl = document.getElementById('launch-date');
+    const headingEl = document.getElementById('heading');
+
+    // Show readable target (with day label)
+    launchDateEl.textContent = `${launch.toLocaleString()} (${labelSuffix})`;
+
+    // Update function — returns true if finished (reached launch), false otherwise
+    function tick() {
+      const now = new Date();
+      let diff = launch - now;
+
+      if (diff <= 0) {
+        // Reached (or passed) the target moment.
+        daysEl.textContent = hoursEl.textContent = minutesEl.textContent = secondsEl.textContent = '00';
+        headingEl.textContent = 'Our site will be available shortly. Thank you for your patience.';
+        return true;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      diff -= days * (1000 * 60 * 60 * 24);
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      diff -= hours * (1000 * 60 * 60);
+
+      const minutes = Math.floor(diff / (1000 * 60));
+      diff -= minutes * (1000 * 60);
+
+      const seconds = Math.floor(diff / 1000);
+
+      daysEl.textContent = pad(days);
+      hoursEl.textContent = pad(hours);
+      minutesEl.textContent = pad(minutes);
+      secondsEl.textContent = pad(seconds);
+
+      return false;
+    }
+
+    // Run immediately and then every second; stop when finished.
+    let finished = tick();
+    const intervalId = setInterval(() => {
+      if (tick()) {
+        clearInterval(intervalId);
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
